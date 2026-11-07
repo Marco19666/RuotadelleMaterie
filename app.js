@@ -897,8 +897,8 @@ function drawWheel() {
     ctx.fillStyle = '#000000';
     // Font adattivo per ruote con molti spicchi (14 materie → font più piccolo)
     let fontSize = 14;
-    if (numSlices >= 14) fontSize = 12;
-    else if (numSlices >= 10) fontSize = 13;
+    if (numSlices >= 14) fontSize = 13;
+    else if (numSlices >= 10) fontSize = 14;
     ctx.font = `900 ${fontSize}px Segoe UI, sans-serif`;
     ctx.fillText(currentItems[i], radius - 12, 5);
     ctx.restore();
