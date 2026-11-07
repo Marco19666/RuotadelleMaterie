@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Come Giocare - La Ruota delle Materie</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #2e1065 0%, #0f172a 100%);
+      min-height: 100vh;
+      color: #fff;
+      padding: 20px 16px 100px 16px;
+      overflow-x: hidden;
+    }
+
+    /* HEADER */
+    .help-header {
+      text-align: center;
+      margin-bottom: 30px;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .help-title {
+      font-size: clamp(1.8rem, 6vw, 2.8rem);
+      font-weight: 900;
+      color: #fbbf24;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      text-shadow:
+        0 0 20px rgba(251, 191, 36, 0.7),
+        0 4px 8px rgba(0, 0, 0, 0.6);
+      line-height: 1;
+    }
+
+    .help-title span {
+      display: block;
+      font-size: 0.45em;
+      color: #ffffff;
+      letter-spacing: 0.15em;
+      margin-top: 8px;
+      text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    }
+
+    .help-subtitle {
+      margin-top: 14px;
+      font-size: 1rem;
+      color: #cbd5e1;
+      font-style: italic;
+    }
+
+    /* CONTAINER */
+    .help-container {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* SEZIONI */
+    .help-section {
+      background: rgba(30, 27, 75, 0.7);
+      border: 2px solid rgba(251, 191, 36, 0.4);
+      border-radius: 16px;
+      padding: 22px 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      animation: sectionIn 0.6s ease-out backwards;
+    }
+
+    .help-section:nth-child(1) { animation-delay: 0.05s; }
+    .help-section:nth-child(2) { animation-delay: 0.1s; }
+    .help-section:nth-child(3) { animation-delay: 0.15s; }
+    .help-section:nth-child(4) { animation-delay: 0.2s; }
+    .help-section:nth-child(5) { animation-delay: 0.25s; }
+    .help-section:nth-child(6) { animation-delay: 0.3s; }
+    .help-section:nth-child(7) { animation-delay: 0.35s; }
+    .help-section:nth-child(8) { animation-delay: 0.4s; }
+
+    @keyframes sectionIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .help-section h2 {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: #fbbf24;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .help-section h2 .icon {
+      font-size: 1.5rem;
+      filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+    }
+
+    .help-section p {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+      margin-bottom: 10px;
+    }
+
+    .help-section p:last-child {
+      margin-bottom: 0;
+    }
+
+    .help-section ul, .help-section ol {
+      margin-left: 22px;
+      margin-top: 8px;
+    }
+
+    .help-section li {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+      margin-bottom: 8px;
+    }
+
+    .help-section strong {
+      color: #fbbf24;
+      font-weight: 800;
+    }
+
+    .help-section em {
+      color: #a5f3fc;
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    /* CARD STATISTICHE */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.06);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 12px 14px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
+    }
+
+    /* BADGE COLORATI */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-gold { background: #fbbf24; color: #0f172a; }
+    .badge-green { background: #10b981; color: #fff; }
+    .badge-red { background: #ef4444; color: #fff; }
+    .badge-blue { background: #3b82f6; color: #fff; }
+    .badge-purple { background: #8b5cf6; color: #fff; }
+    .badge-pink { background: #ec4899; color: #fff; }
+    .badge-gray { background: #9ca3af; color: #fff; }
+
+    /* SEZIONI SPECIALI */
+    .special-box {
+      background: rgba(251, 191, 36, 0.1);
+      border-left: 4px solid #fbbf24;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-top: 12px;
+    }
+
+    .special-box.danger {
+      background: rgba(239, 68, 68, 0.1);
+      border-left-color: #ef4444;
+    }
+
+    .special-box.info {
+      background: rgba(59, 130, 246, 0.1);
+      border-left-color: #3b82f6;
+    }
+
+    .special-box p {
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+    }
+
+    .special-box p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* LISTA MATERIE */
+    .materie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .materia-chip {
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-align: center;
+      color: #0f172a;
+      background: linear-gradient(135deg, #fde68a 0%, #fbbf24 100%);
+      box-shadow: 0 3px 8px rgba(251, 191, 36, 0.3);
+      transition: transform 0.2s ease;
+    }
+
+    .materia-chip:hover {
+      transform: translateY(-2px) scale(1.03);
+    }
+
+    /* SPICCHI PREMI */
+    .premi-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .premio-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      border-left: 4px solid;
+    }
+
+    .premio-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .premio-text {
+      flex: 1;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .premio-text strong {
+      display: block;
+      font-size: 0.95rem;
+      margin-bottom: 2px;
+    }
+
+    /* BOTTONE TORNA AL MENU */
+    .back-button {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 14px 40px;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: #ffffff;
+      background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+      border: 2px solid #c084fc;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 6px 25px rgba(139, 92, 246, 0.5), 0 4px 0 #5b21b6;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s ease;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+
+    .back-button:hover {
+      transform: translateX(-50%) translateY(-2px);
+      box-shadow: 0 8px 30px rgba(139, 92, 246, 0.7), 0 4px 0 #5b21b6;
+    }
+
+    .back-button:active {
+      transform: translateX(-50%) translateY(2px);
+      box-shadow: 0 2px 10px rgba(139, 92, 246, 0.5), 0 1px 0 #5b21b6;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 500px) {
+      body { padding: 16px 12px 90px 12px; }
+      .help-section { padding: 18px 14px; }
+      .help-section h2 { font-size: 1.05rem; }
+      .help-section p, .help-section li { font-size: 0.9rem; }
+      .stat-value { font-size: 1.3rem; }
+      .materie-grid { grid-template-columns: repeat(2, 1fr); }
+      .back-button { padding: 12px 30px; font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="help-header">
+    <h1 class="help-title">
+      Come Giocare
+      <span>La Ruota delle Materie</span>
+    </h1>
+    <p class="help-subtitle">Guida completa al gioco</p>
+  </header>
+
+  <div class="help-container">
+
+    <!-- 1. OBIETTIVO -->
+    <section class="help-section">
+      <h2><span class="icon">🎯</span>Obiettivo del Gioco</h2>
+      <p>
+        Indovina la risposta corretta alle domande di cultura generale per avanzare
+        di <strong>Round</strong> in Round e battere il tuo record personale.
+      </p>
+      <p>
+        Ogni partita è unica: le domande vengono estratte casualmente dal database
+        di <strong>1.400+ domande</strong> divise in <strong>14 materie</strong>.
+      </p>
+    </section>
+
+    <!-- 2. COME SI GIOCA -->
+    <section class="help-section">
+      <h2><span class="icon">🎮</span>Come si Gioca</h2>
+      <ol>
+        <li>
+          <strong>Gira la Ruota delle Materie</strong> per estrarre una materia
+          (Storia, Matematica, Geografia, ecc.)
+        </li>
+        <li>
+          <strong>Gira la Ruota dei Premi</strong> per determinare il bonus/malus
+          o la modalità speciale del round
+        </li>
+        <li>
+          <strong>Leggi la domanda</strong> e prova a indovinare la risposta
+        </li>
+        <li>
+          <strong>Cerca le lettere</strong> usando la tastiera virtuale: ogni
+          consonante costa 1 consonante, ogni vocale costa 1 vocale
+        </li>
+        <li>
+          <strong>Indovina la risposta completa</strong> per vincere il round
+          e passare al successivo
+        </li>
+      </ol>
+    </section>
+
+    <!-- 3. PUNTEGGI -->
+    <section class="help-section">
+      <h2><span class="icon">📊</span>Punteggi e Risorse</h2>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Round Iniziale</div>
+          <div class="stat-value">1</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Consonanti</div>
+          <div class="stat-value">10</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Vocali</div>
+          <div class="stat-value">3</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Jolly</div>
+          <div class="stat-value">1</div>
+        </div>
+      </div>
+      <p style="margin-top: 16px;">
+        <strong>Come guadagni risorse:</strong>
+      </p>
+      <ul>
+        <li><span class="badge badge-green">+2 Consonanti</span> e <span class="badge badge-green">+1 Vocale</span> quando indovini una risposta</li>
+        <li><span class="badge badge-green">+1 Round</span> quando indovini una risposta o esce "Supera il Round"</li>
+      </ul>
+      <p style="margin-top: 12px;">
+        <strong>Come perdi risorse:</strong>
+      </p>
+      <ul>
+        <li><span class="badge badge-red">-2 Consonanti</span> e <span class="badge badge-red">-1 Vocale</span> quando sbagli la soluzione</li>
+        <li>Se i valori scendono sotto zero → <strong>Game Over</strong></li>
+      </ul>
+    </section>
+
+    <!-- 4. MATERIE -->
+    <section class="help-section">
+      <h2><span class="icon">📚</span>Le 14 Materie</h2>
+      <p>
+        La ruota delle materie contiene 14 spicchi. Ogni materia ha domande di
+        difficoltà crescente (facili → medie → difficili):
+      </p>
+      <div class="materie-grid">
+        <div class="materia-chip">Storia</div>
+        <div class="materia-chip">Matematica</div>
+        <div class="materia-chip">Geografia</div>
+        <div class="materia-chip">Scienze</div>
+        <div class="materia-chip">Arte</div>
+        <div class="materia-chip">Musica</div>
+        <div class="materia-chip">Tecnologia</div>
+        <div class="materia-chip">Filosofia</div>
+        <div class="materia-chip">Fisica</div>
+        <div class="materia-chip">Chimica</div>
+        <div class="materia-chip">Informatica</div>
+        <div class="materia-chip">Religione</div>
+        <div class="materia-chip">Letteratura</div>
+        <div class="materia-chip">Sport</div>
+      </div>
+    </section>
+
+    <!-- 5. SPICCHI PREMI -->
+    <section class="help-section">
+      <h2><span class="icon">🎁</span>Gli 11 Spicchi Premi</h2>
+      <p>La ruota dei premi può assegnare uno di questi 11 esiti:</p>
+      <div class="premi-list">
+        <div class="premio-item" style="border-left-color: #10b981;">
+          <div class="premio-icon">✅</div>
+          <div class="premio-text">
+            <strong>Vinci 1 Consonante</strong>
+            Guadagni una consonante extra
+          </div>
+        </div>
+        <div class="premio-item" style="border-left-color: #10b981;">
+          <div class="premio-icon">✅</div>
+          <div class="premio-text">
+            <strong>Vinci 1 Vocale</strong>
+            Guadagni una vocale extra
+          </div>
+        </div>
+        <div class="premio-item" style="border-left-color: #ef4444;">
+          <div class="premio-icon">❌</div>
+          <div class="premio-text">
+            <strong>Perdi 1 Consonante</strong>
+            Perdi una consonante
+          </div>
+        </div>
+        <div class="premio-item" style="border-left-color: #ef4444;">
+          <div class="premio-icon">❌</div>
+          <div class="premio-text">
+            <strong>Perdi 1 Vocale</strong>
+            Perdi una vocale
+          </div>
+        </div>
+        <div class="premio-item" style="border-left-color: #8b5cf6;">
+          <div class="premio-icon">🔄</div>
+          <div class="premio-text">
+            <strong>Cambia Materia</strong>
+            Torni alla ruota delle materie per estrarne una nuova
+          </div>
+        </div>
+        <div class="premio-item" style="border-left-color: #3b82f6;">
+          <div class="premio-icon">⬆️</div>
+          <div class="premio-text">
+            <strong>Supera il Round</strong>
+            Avanzi di un round senza dover indovinare
+          </div>
+        </div>
+        <div class="premio-item" style="border-left-color: #9ca3af;">
+          <div class="premio-icon">🎯</div>
+          <div class="premio-text">
+            <strong>Cecchino</strong>
+            Nella prossima domanda hai UN SOLO tentativo. Non puoi cercare lettere: devi scrivere la soluzione completa. Se sbagli → Game Over
+          </div>
+        </div>
+        <div class="premio-item" style="border-left-color: #fcd34d;">
+          <div class="premio-icon">🔀</div>
+          <div class="premio-text">
+            <strong>Cambia Domanda</strong>
+            Nella prossima domanda puoi scegliere se cambiarla con un'altra della stessa materia
+          </div>
+        </div>
+        <div class="premio-item" style="border-left-color: #fbbf24;">
+          <div class="premio-icon">⭐</div>
+          <div class="premio-text">
+            <strong>Jolly</strong>
+            Ottieni un Jolly (max 1). Puoi usarlo per evitare "Bancarotta" o "Riparti da Zero"
+          </div>
+        </div>
+        <div class="premio-item" style="border-left-color: #ef4444;">
+          <div class="premio-icon">💥</div>
+          <div class="premio-text">
+            <strong>Bancarotta</strong>
+            Perdi tutte le consonanti e vocali (0/0). Dovrai risolvere la prossima domanda solo con la soluzione completa
+          </div>
+        </div>
+        <div class="premio-item" style="border-left-color: #ef4444;">
+          <div class="premio-icon">💀</div>
+          <div class="premio-text">
+            <strong>Riparti da Zero</strong>
+            Torni al Round 1 con 10 consonanti e 3 vocali. Nessun jolly disponibile per evitarlo
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. MODALITÀ SPECIALI -->
+    <section class="help-section">
+      <h2><span class="icon">⭐</span>Modalità Speciali</h2>
+
+      <h3 style="color: #fbbf24; font-size: 1rem; margin: 14px 0 8px 0;">⭐ Jolly</h3>
+      <div class="special-box">
+        <p>
+          Puoi possedere <strong>solo 1 Jolly</strong> alla volta (non cumulabile).
+        </p>
+        <p>
+          Quando esce <strong>Bancarotta</strong> o <strong>Riparti da Zero</strong> e hai il Jolly,
+          ti verrà chiesto se vuoi usarlo per evitare il malus.
+        </p>
+        <p>
+          Se lo usi, il Jolly viene consumato e torni alla ruota delle materie senza penalità.
+        </p>
+      </div>
+
+      <h3 style="color: #9ca3af; font-size: 1rem; margin: 20px 0 8px 0;">🎯 Cecchino</h3>
+      <div class="special-box danger">
+        <p>
+          Quando esce <strong>Cecchino</strong>, nella prossima domanda hai
+          <strong>UN SOLO TENTATIVO</strong>.
+        </p>
+        <p>
+          <strong>Non puoi cercare lettere</strong> per rivelare la soluzione:
+          devi scrivere la soluzione completa lettera per lettera.
+        </p>
+        <p>
+          Se sbagli → <strong>Game Over immediato</strong>.
+        </p>
+      </div>
+
+      <h3 style="color: #fcd34d; font-size: 1rem; margin: 20px 0 8px 0;">🔀 Cambia Domanda</h3>
+      <div class="special-box info">
+        <p>
+          Quando esce <strong>Cambia Domanda</strong>, nella prossima domanda
+          ti verrà chiesto se vuoi cambiarla con un'altra domanda della stessa materia.
+        </p>
+        <p>
+          Vedrai prima la domanda estratta, poi l'alert ti chiederà se cambiarla.
+        </p>
+      </div>
+    </section>
+
+    <!-- 7. FINE PARTITA -->
+    <section class="help-section">
+      <h2><span class="icon">🏁</span>Come Finisce la Partita</h2>
+      <p>La partita termina in questi casi:</p>
+      <ul>
+        <li><strong>Risposta errata</strong> in modalità "Dà la soluzione" che porterebbe i valori sotto zero</li>
+        <li><strong>Risposta errata</strong> durante la modalità <strong>Cecchino</strong> (Game Over immediato)</li>
+        <li>Quando i valori di consonanti o vocali diventano <strong>negativi</strong></li>
+      </ul>
+      <div class="special-box danger">
+        <p>
+          <strong>⚠️ Ultima Possibilità:</strong> se dopo una sconfitta i valori
+          residui sono critici (consonanti &lt; 2 o vocali = 0), riceverai un
+          avviso. La prossima sconfitta sarà fatale.
+        </p>
+      </div>
+    </section>
+
+    <!-- 8. SALVATAGGIO -->
+    <section class="help-section">
+      <h2><span class="icon">💾</span>Salvataggio e Ripresa</h2>
+      <p>
+        La partita viene salvata automaticamente nel browser. Puoi chiudere e
+        riaprire il gioco in qualsiasi momento.
+      </p>
+      <p>
+        Dallo <strong>splash screen</strong> iniziale puoi scegliere tra:
+      </p>
+      <ul>
+        <li><strong>Nuova Partita</strong> — inizia da Round 1 con risorse piene</li>
+        <li><strong>Riprendi Partita</strong> — continua dal punto in cui eri rimasto</li>
+      </ul>
+      <p>
+        Il <strong>Record</strong> (miglior round raggiunto) viene salvato per sempre.
+      </p>
+    </section>
+
+  </div>
+
+  <!-- BOTTONE TORNA AL MENU -->
+  <button class="back-button" onclick="tornaAlMenu()">← Torna al Menu</button>
+
+  <script>
+    function tornaAlMenu() {
+      // Suono opzionale (click) se l'audio è supportato
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          const ctx = new AudioCtx();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.value = 700;
+          gain.gain.setValueAtTime(0.08, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.08);
+        }
+      } catch(e) {}
+
+      // Torna alla pagina principale (index.html)
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 100);
+    }
+
+    // Supporto tastiera: ESC per tornare al menu
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        tornaAlMenu();
+      }
+    });
+  </script>
+
+</body>
+</html>
