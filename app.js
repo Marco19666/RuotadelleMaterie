@@ -77,7 +77,7 @@ const SFX = {
 };
 
 // ============================================================
-// MUSICA - Opzione A: melodia loop pentatonica
+// MUSICA - Melodia loop estesa (32 note, due frasi A+B)
 // ============================================================
 function startMusic() {
   try {
@@ -93,39 +93,49 @@ function startMusic() {
     musicPlaying = true;
 
     const melodia = [
-      523.25, 587.33, 659.25, 783.99, 880.00,
-      783.99, 659.25, 587.33,
-      523.25, 659.25, 783.99, 880.00,
-      783.99, 587.33, 523.25, 0
+      [523.25, 1], [587.33, 1], [659.25, 1], [783.99, 1],
+      [880.00, 2], [783.99, 1], [659.25, 1],
+      [587.33, 1], [523.25, 1], [587.33, 1], [659.25, 2],
+      [783.99, 1], [880.00, 1], [783.99, 1], [659.25, 1],
+      [523.25, 1], [659.25, 1], [783.99, 1], [1046.50, 1],
+      [880.00, 2], [783.99, 1], [880.00, 1],
+      [1046.50, 1], [880.00, 1], [783.99, 1], [659.25, 2],
+      [587.33, 1], [659.25, 1], [523.25, 2]
     ];
-    const durataNota = 0.35;
+    const durataUnita = 0.30;
     const volume = 0.05;
 
     function playMelodiaLoop() {
       if (!musicPlaying || audioMuted) return;
 
-      melodia.forEach((freq, i) => {
-        if (freq === 0) return;
-        const t = setTimeout(() => {
-          if (!musicPlaying || audioMuted) return;
-          try {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.value = freq;
-            gain.gain.setValueAtTime(0, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(volume, audioCtx.currentTime + 0.02);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + durataNota * 0.9);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + durataNota);
-          } catch(e) {}
-        }, i * durataNota * 1000);
-        musicTimeouts.push(t);
+      let tempo = 0;
+      melodia.forEach(([freq, dur]) => {
+        if (freq !== 0) {
+          const delayMs = tempo * durataUnita * 1000;
+          const durataNota = dur * durataUnita;
+          const t = setTimeout(() => {
+            if (!musicPlaying || audioMuted) return;
+            try {
+              const osc = audioCtx.createOscillator();
+              const gain = audioCtx.createGain();
+              osc.type = 'triangle';
+              osc.frequency.value = freq;
+              gain.gain.setValueAtTime(0, audioCtx.currentTime);
+              gain.gain.linearRampToValueAtTime(volume, audioCtx.currentTime + 0.02);
+              gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + durataNota * 0.9);
+              osc.connect(gain);
+              gain.connect(audioCtx.destination);
+              osc.start();
+              osc.stop(audioCtx.currentTime + durataNota);
+            } catch(e) {}
+          }, delayMs);
+          musicTimeouts.push(t);
+        }
+        tempo += dur;
       });
 
-      const loopDurata = melodia.length * durataNota * 1000;
+      const pausaFinale = 0.8;
+      const loopDurata = (tempo + pausaFinale) * durataUnita * 1000;
       const tLoop = setTimeout(() => {
         if (musicPlaying && !audioMuted) playMelodiaLoop();
       }, loopDurata);
@@ -213,12 +223,10 @@ let currentAngle = 0;
 let isSpinning = false;
 let lastTickSlice = -1;
 
-// Modalità speciali
 let cecchinoAttivo = false;
 let cambiaDomandaAttivo = false;
-
-// Domanda corrente
 let currentQuestionObj = null;
+let gameOverInCorso = false;
 
 const VOWELS = ['A', 'E', 'I', 'O', 'U'];
 const qwertyLayout = [
@@ -459,6 +467,8 @@ function aggiornaUI() {
 // AVVIO PARTITE
 // ============================================================
 function avviaNuovaPartita() {
+  gameOverInCorso = false;
+
   initAudio();
   cancellaSalvataggio();
   resetTuttiContatori();
@@ -501,6 +511,8 @@ function avviaNuovaPartita() {
 }
 
 function avviaRipresa() {
+  gameOverInCorso = false;
+
   initAudio();
   const save = caricaPartita();
   if (!save) { avviaNuovaPartita(); return; }
@@ -586,8 +598,17 @@ function disabilitaTastiera() {
   });
 }
 
+function abilitaTastiera() {
+  if (!keyboardContainer) return;
+  keyboardContainer.querySelectorAll('.key-btn').forEach(btn => {
+    btn.disabled = false;
+  });
+}
+
 function handleKeyClick(btn, char, isVowel) {
-  if (isSolvingMode) {
+  // Se in modalità solving (o Cecchino, che forza solving),
+  // scrivi la lettera nella tile senza consumare cons/voc
+  if (isSolvingMode || cecchinoAttivo) {
     SFX.click();
     const tiles = answerBoard.querySelectorAll('.letter-tile');
     for (let tile of tiles) {
@@ -685,7 +706,6 @@ async function checkSolutionComplete() {
       vocaliCount += 1;
       roundCount += 1;
 
-      // Disattiva modalità speciali
       cecchinoAttivo = false;
       cambiaDomandaAttivo = false;
 
@@ -707,16 +727,20 @@ async function checkSolutionComplete() {
       if (cardConsonanti) cardConsonanti.classList.add('shake-fail');
       if (cardVocali) cardVocali.classList.add('shake-fail');
 
-      // ✅ MODALITÀ CECCHINO: sbaglio = Game Over immediato
+      // Cecchino: sbaglio = Game Over immediato
       if (cecchinoAttivo) {
         cecchinoAttivo = false;
+        if (gameOverInCorso) return;
+        gameOverInCorso = true;
         setTimeout(async () => {
+          if (!gameOverInCorso) return;
           await showAlert({
             title: '💀 GAME OVER',
             message: 'Modalità Cecchino: hai sbagliato l\'unico tentativo.\n\nPartita terminata.',
             danger: true,
             buttons: [{ label: 'OK', type: 'danger', value: true }]
           });
+          if (!gameOverInCorso) return;
           gameOverReset();
         }, 1800);
         return;
@@ -727,13 +751,17 @@ async function checkSolutionComplete() {
 
       // Game Over se la penalità porterebbe sotto zero
       if (newCons < 0 || newVoc < 0) {
+        if (gameOverInCorso) return;
+        gameOverInCorso = true;
         setTimeout(async () => {
+          if (!gameOverInCorso) return;
           await showAlert({
             title: '💀 GAME OVER',
             message: 'Partita terminata.',
             danger: true,
             buttons: [{ label: 'OK', type: 'danger', value: true }]
           });
+          if (!gameOverInCorso) return;
           gameOverReset();
         }, 1800);
         return;
@@ -743,7 +771,6 @@ async function checkSolutionComplete() {
       consonantiCount = Math.max(0, newCons);
       vocaliCount = Math.max(0, newVoc);
 
-      // Disattiva modalità speciali
       cecchinoAttivo = false;
       cambiaDomandaAttivo = false;
 
@@ -777,6 +804,8 @@ async function checkSolutionComplete() {
 }
 
 function gameOverReset() {
+  gameOverInCorso = false;
+
   cancellaSalvataggio();
   resetTuttiContatori();
   resetAnimazioni();
@@ -1015,7 +1044,6 @@ function showQuestionPhase() {
         domanda = { domanda: "Nessuna domanda disponibile", risposta: "NESSUNA", difficolta: 1 };
       }
 
-      // Mostra la domanda sul tabellone
       currentQuestionObj = domanda;
       if (questionText) questionText.textContent = domanda.domanda;
       renderAnswerBoard(domanda.risposta);
@@ -1024,7 +1052,6 @@ function showQuestionPhase() {
       salvaPartita();
 
       // === MODALITÀ CAMBIA DOMANDA ===
-      // Apre l'alert DOPO che la domanda è visibile
       if (cambiaDomandaAttivo) {
         setTimeout(async () => {
           const vuoleCambiare = await showAlert({
@@ -1037,7 +1064,6 @@ function showQuestionPhase() {
             ]
           });
 
-          // Consuma la modalità (vale solo per questa domanda)
           cambiaDomandaAttivo = false;
 
           if (vuoleCambiare) {
@@ -1060,9 +1086,12 @@ function showQuestionPhase() {
       // === MODALITÀ CECCHINO ===
       if (cecchinoAttivo) {
         setTimeout(async () => {
+          // Disabilita la tastiera durante l'alert (nessun click accidentale)
+          disabilitaTastiera();
+
           await showAlert({
             title: '🎯 Modalità Cecchino',
-            message: 'Hai un solo tentativo!\n\nNon puoi cercare lettere: devi indovinare la soluzione completa.\n\nSe sbagli, la partita TERMINA immediatamente.',
+            message: 'Hai un solo tentativo!\n\nNon puoi cercare lettere per rivelare la soluzione.\n\nDevi scrivere la soluzione completa lettera per lettera usando la tastiera.\n\nSe sbagli, la partita TERMINA immediatamente.',
             danger: true,
             buttons: [{ label: 'Sono pronto', type: 'danger', value: true }]
           });
@@ -1076,8 +1105,8 @@ function showQuestionPhase() {
           }
           if (clearBtn) clearBtn.style.display = 'block';
 
-          // Disabilita la tastiera delle lettere
-          disabilitaTastiera();
+          // ✅ Riabilita la tastiera: serve per scrivere la soluzione
+          abilitaTastiera();
         }, 500);
       }
     }, 1000);
@@ -1210,7 +1239,7 @@ if (modalCloseBtn) {
         SFX.cecchino();
         await showAlert({
           title: '🎯 Modalità Cecchino attivata!',
-          message: 'Nella prossima domanda avrai UN SOLO TENTATIVO.\n\nNon potrai cercare lettere: dovrai indovinare la soluzione completa.\n\nSe sbagli, la partita termina.',
+          message: 'Nella prossima domanda avrai UN SOLO TENTATIVO.\n\nNon potrai cercare lettere: dovrai scrivere la soluzione completa.\n\nSe sbagli, la partita termina.',
           danger: true,
           buttons: [{ label: 'Ho capito', type: 'danger', value: true }]
         });
