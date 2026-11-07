@@ -962,3 +962,22 @@ body.screen-shake { animation: screenShake 0.6s ease-in-out; }
   .title-banner { font-size: 1rem; padding: 8px 20px; }
   .winner-value { font-size: 1.6rem; }
 }
+/* ============================================================
+   BOTTONE HELP (splash screen)
+   ============================================================ */
+.splash-btn-help {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-color: #fbbf24;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5), 0 4px 0 #b45309;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #ffffff;
+}
+
+.splash-btn-help:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.6), 0 4px 0 #b45309;
+}
