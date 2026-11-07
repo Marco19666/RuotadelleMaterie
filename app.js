@@ -166,8 +166,8 @@ function stopMusic() {
 // ============================================================
 // COSTANTI E RIFERIMENTI DOM
 // ============================================================
-const SAVE_KEY = 'ruota_materie_save_v4';
-const BEST_KEY = 'ruota_materie_best_v4';
+const SAVE_KEY = 'ruota_materie_save_v5';
+const BEST_KEY = 'ruota_materie_best_v5';
 const INITIAL_ROUND = 1;
 const INITIAL_CONSONANTI = 10;
 const INITIAL_VOCALI = 3;
@@ -234,16 +234,22 @@ const qwertyLayout = [
   ['A','S','D','F','G','H','J','K','L'],
   ['Z','X','C','V','B','N','M']
 ];
+
+// ✅ 14 MATERIE (aggiunte Letteratura e Sport)
 const subjects = [
   'Storia','Matematica','Geografia','Scienze','Arte','Musica',
-  'Tecnologia','Filosofia','Fisica','Chimica','Informatica','Religione'
+  'Tecnologia','Filosofia','Fisica','Chimica','Informatica','Religione',
+  'Letteratura','Sport'
 ];
+
 const prizes = [
   'Vinci 1 Consonante','Perdi 1 Vocale','Riparti da Zero',
   'Cambia Materia','Supera il Round','Vinci 1 Vocale',
   'Perdi 1 Consonante','Bancarotta','Jolly',
   'Cecchino','Cambia Domanda'
 ];
+
+// Palette colori (14 colori distinti)
 const colors = [
   '#f87171','#fb923c','#fbbf24','#a3e635','#4ade80','#34d399',
   '#2dd4bf','#38bdf8','#60a5fa','#818cf8','#a78bfa','#f472b6',
@@ -606,8 +612,6 @@ function abilitaTastiera() {
 }
 
 function handleKeyClick(btn, char, isVowel) {
-  // Se in modalità solving (o Cecchino, che forza solving),
-  // scrivi la lettera nella tile senza consumare cons/voc
   if (isSolvingMode || cecchinoAttivo) {
     SFX.click();
     const tiles = answerBoard.querySelectorAll('.letter-tile');
@@ -693,7 +697,6 @@ async function checkSolutionComplete() {
 
   if (allFilled) {
     if (assembledString === currentAnswer) {
-      // ========== VITTORIA ==========
       SFX.win();
       triggerVictoryEffects();
 
@@ -719,7 +722,6 @@ async function checkSolutionComplete() {
         resetToSubjectWheel();
       }, 3000);
     } else if (isSolvingMode) {
-      // ========== SCONFITTA ==========
       SFX.lose();
       triggerDefeatEffects();
 
@@ -727,7 +729,6 @@ async function checkSolutionComplete() {
       if (cardConsonanti) cardConsonanti.classList.add('shake-fail');
       if (cardVocali) cardVocali.classList.add('shake-fail');
 
-      // Cecchino: sbaglio = Game Over immediato
       if (cecchinoAttivo) {
         cecchinoAttivo = false;
         if (gameOverInCorso) return;
@@ -749,7 +750,6 @@ async function checkSolutionComplete() {
       const newCons = consonantiCount - 2;
       const newVoc = vocaliCount - 1;
 
-      // Game Over se la penalità porterebbe sotto zero
       if (newCons < 0 || newVoc < 0) {
         if (gameOverInCorso) return;
         gameOverInCorso = true;
@@ -767,7 +767,6 @@ async function checkSolutionComplete() {
         return;
       }
 
-      // Sconfitta normale
       consonantiCount = Math.max(0, newCons);
       vocaliCount = Math.max(0, newVoc);
 
@@ -896,10 +895,12 @@ function drawWheel() {
     ctx.rotate(angle + sliceAngle / 2);
     ctx.textAlign = 'right';
     ctx.fillStyle = '#000000';
-    ctx.font = numSlices >= 10
-      ? '900 12px Segoe UI, sans-serif'
-      : '900 14px Segoe UI, sans-serif';
-    ctx.fillText(currentItems[i], radius - 15, 5);
+    // Font adattivo per ruote con molti spicchi (14 materie → font più piccolo)
+    let fontSize = 14;
+    if (numSlices >= 14) fontSize = 11;
+    else if (numSlices >= 10) fontSize = 12;
+    ctx.font = `900 ${fontSize}px Segoe UI, sans-serif`;
+    ctx.fillText(currentItems[i], radius - 12, 5);
     ctx.restore();
   }
 
@@ -1051,7 +1052,7 @@ function showQuestionPhase() {
       if (questionPhase) questionPhase.style.display = 'flex';
       salvaPartita();
 
-      // === MODALITÀ CAMBIA DOMANDA ===
+      // MODALITÀ CAMBIA DOMANDA
       if (cambiaDomandaAttivo) {
         setTimeout(async () => {
           const vuoleCambiare = await showAlert({
@@ -1083,10 +1084,9 @@ function showQuestionPhase() {
         }, 500);
       }
 
-      // === MODALITÀ CECCHINO ===
+      // MODALITÀ CECCHINO
       if (cecchinoAttivo) {
         setTimeout(async () => {
-          // Disabilita la tastiera durante l'alert (nessun click accidentale)
           disabilitaTastiera();
 
           await showAlert({
@@ -1096,7 +1096,6 @@ function showQuestionPhase() {
             buttons: [{ label: 'Sono pronto', type: 'danger', value: true }]
           });
 
-          // Attiva automaticamente "Dà la soluzione"
           isSolvingMode = true;
           if (solveBtn) {
             solveBtn.classList.add('active-mode');
@@ -1105,7 +1104,6 @@ function showQuestionPhase() {
           }
           if (clearBtn) clearBtn.style.display = 'block';
 
-          // ✅ Riabilita la tastiera: serve per scrivere la soluzione
           abilitaTastiera();
         }, 500);
       }
@@ -1124,7 +1122,6 @@ if (modalCloseBtn) {
       if (c) c.classList.remove('win-glow', 'shake-fail');
     });
 
-    // JOLLY su Bancarotta / Riparti da Zero
     if ((lastPrize === 'Bancarotta' || lastPrize === 'Riparti da Zero') && hasJolly) {
       const usa = await showAlert({
         title: 'Jolly disponibile!',
