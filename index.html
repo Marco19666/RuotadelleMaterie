@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>La Ruota delle Materie</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- SPLASH SCREEN -->
+  <div id="splashScreen" class="splash-screen">
+    <div class="splash-content">
+      <h1 class="splash-title">LA RUOTA<br><span>DELLE MATERIE</span></h1>
+      <div class="splash-best">
+        <div class="splash-best-label">Record</div>
+        <div class="splash-best-value" id="splashBestScore">-</div>
+      </div>
+      <div class="splash-buttons">
+        <button id="btnNewGame" class="splash-btn splash-btn-new">Nuova Partita</button>
+        <button id="btnResumeGame" class="splash-btn splash-btn-resume" disabled>Riprendi Partita</button>
+      </div>
+      <div class="splash-hint" id="splashHint">Seleziona una modalità</div>
+    </div>
+    <div class="splash-particles" id="splashParticles"></div>
+  </div>
+
+  <!-- GIOCO -->
+  <div id="gameContainer" class="game-container hidden">
+
+    <div class="top-bar">
+      <button id="btnBackToMenu" class="top-bar-btn" title="Menu">≡ Menu</button>
+      <button id="btnMute" class="top-bar-btn" title="Audio on/off">🔊</button>
+    </div>
+
+    <header class="dashboard-header">
+      <div class="card" id="cardRound">
+        <div class="card-label">Round</div>
+        <div class="card-value" id="valRound">1</div>
+      </div>
+      <div class="card" id="cardConsonanti">
+        <div class="card-label">Consonanti</div>
+        <div class="card-value" id="valConsonanti">10</div>
+      </div>
+      <div class="card" id="cardVocali">
+        <div class="card-label">Vocali</div>
+        <div class="card-value" id="valVocali">3</div>
+      </div>
+      <div class="card card-jolly" id="cardJolly">
+        <div class="card-label">Jolly</div>
+        <div class="card-value" id="valJolly">—</div>
+      </div>
+    </header>
+
+    <div id="winnerBanner" class="winner-full-banner">
+      <div class="winner-label">Materia Estratta</div>
+      <div id="winnerValue" class="winner-value">-</div>
+    </div>
+
+    <div id="questionPhase" class="question-phase-container">
+      <div class="question-box">
+        <div class="question-label">Domanda</div>
+        <div id="questionText" class="question-text">-</div>
+      </div>
+      <div id="answerBoard" class="answer-board"></div>
+      <div class="keyboard-container" id="keyboardContainer"></div>
+      <div class="solve-controls">
+        <button id="solveBtn" class="solve-btn">Dà la soluzione</button>
+        <button id="clearBtn" class="clear-btn">Cancella</button>
+      </div>
+    </div>
+
+    <div id="titleBanner" class="title-banner">Ruota delle Materie</div>
+
+    <div id="wheelSection" class="wheel-section">
+      <div class="wheel-container">
+        <div class="pointer"></div>
+        <canvas id="wheelCanvas" width="405" height="405"></canvas>
+      </div>
+      <button id="spinBtn" class="spin-btn">Gira la Ruota</button>
+    </div>
+
+    <div id="rewardModal" class="modal-overlay">
+      <div class="modal-card">
+        <div class="modal-title">Risultato Premio</div>
+        <div id="rewardText" class="modal-reward">-</div>
+        <button id="modalCloseBtn" class="modal-btn">Continua</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="database.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
